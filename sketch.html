@@ -134,9 +134,14 @@
             left: 0;
             width: 22px;
             height: 72px;
-            transform: translate(-50%, -50%) rotate(32deg);
+            transform-origin: bottom center;
+            transform: rotate(32deg);
             pointer-events: none;
             z-index: 9999;
+        }
+
+        .pencil.hidden {
+            display: none;
         }
 
         .pencil-eraser {
@@ -264,6 +269,7 @@
                 pencilLead.style.background = c;
                 document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
                 sw.classList.add('active');
+                pencil.classList.add('hidden');
             });
             colorsContainer.appendChild(sw);
         });
@@ -278,12 +284,13 @@
 
         canvas.addEventListener('mousedown', (e) => {
             drawing = true;
+            pencil.classList.remove('hidden');
             ctx.beginPath();
             ctx.moveTo(e.clientX, e.clientY);
         });
 
         canvas.addEventListener('mousemove', (e) => {
-            pencil.style.left = e.clientX + 'px';
+            pencil.style.left = (e.clientX - 11) + 'px';
             pencil.style.top = e.clientY + 'px';
             if (drawing) {
                 ctx.lineTo(e.clientX, e.clientY);
