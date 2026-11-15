@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UI Experiments – Switch Button</title>
+    <title>UI Experiments – Switch & Theme</title>
     <style>
         * {
             box-sizing: border-box;
@@ -11,13 +11,42 @@
             padding: 0;
         }
 
+        :root {
+            --bg-color: #f5f7fa;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --slider-off: #ccc;
+            --slider-on: #4caf50;
+            --toggle-shadow: #4caf50;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --card-bg: #2a2a2a;
+            --slider-off: #555;
+            --slider-on: #66bb6a;
+            --toggle-shadow: #66bb6a;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: #f5f7fa;
+            background: var(--bg-color);
+            color: var(--text-color);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
+            gap: 24px;
             min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
         }
 
         .switch-container {
@@ -28,7 +57,7 @@
 
         .switch-container span {
             font-size: 1rem;
-            color: #333;
+            color: var(--text-color);
             user-select: none;
         }
 
@@ -53,7 +82,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #ccc;
+            background-color: var(--slider-off);
             transition: 0.3s;
             border-radius: 26px;
         }
@@ -72,7 +101,7 @@
 
         /* Stato attivo (ON) */
         input:checked + .slider {
-            background-color: #4caf50;
+            background-color: var(--slider-on);
         }
 
         input:checked + .slider:before {
@@ -81,29 +110,62 @@
 
         /* Stato inattivo (OFF) */
         input:not(:checked) + .slider {
-            background-color: #ccc;
+            background-color: var(--slider-off);
         }
 
         input:not(:checked) + .slider:before {
             transform: translateX(0);
         }
 
-        /* Effetto hover */
+        /* Effetto focus */
         .switch input:focus + .slider {
-            box-shadow: 0 0 1px #4caf50;
+            box-shadow: 0 0 0 2px var(--toggle-shadow);
+        }
+
+        /* Tema switch */
+        .theme-btn {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--slider-off);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .theme-btn:hover {
+            filter: brightness(1.1);
+        }
+
+        .theme-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--toggle-shadow);
+        }
+
+        .theme-icon {
+            margin-right: 6px;
         }
     </style>
 </head>
 <body>
-    <div class="switch-container">
-        <span id="status">Off</span>
-        <label class="switch">
-            <input type="checkbox" id="toggle">
-            <span class="slider"></span>
-        </label>
+    <div class="controls">
+        <div class="switch-container">
+            <span id="status">Off</span>
+            <label class="switch">
+                <input type="checkbox" id="toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <button class="theme-btn" id="theme-toggle" aria-label="Cambia tema">
+            <span class="theme-icon" id="theme-icon">🌙</span>
+            <span id="theme-label">Tema scuro</span>
+        </button>
     </div>
 
     <script>
+        // --- Switch ON/OFF ---
         const toggle = document.getElementById('toggle');
         const status = document.getElementById('status');
 
@@ -113,8 +175,40 @@
 
         toggle.addEventListener('change', updateStatus);
 
-        // Stato iniziale
+        // Stato iniziale switch
         updateStatus();
+
+        // --- Tema chiaro/scuro ---
+        const themeBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const themeLabel = document.getElementById('theme-label');
+        const html = document.documentElement;
+
+        // Legge il tema salvato o usa il sistema
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const currentTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                html.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                themeLabel.textContent = 'Tema chiaro';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.removeAttribute('data-theme');
+                themeIcon.textContent = '🌙';
+                themeLabel.textContent = 'Tema scuro';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        setTheme(currentTheme);
+
+        themeBtn.addEventListener('click', () => {
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            setTheme(isDark ? 'light' : 'dark');
+        });
     </script>
 </body>
 </html>
