@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sketch – Matita rossa</title>
+    <title>Sketch – Disegno stilizzato</title>
     <style>
         * {
             margin: 0;
@@ -14,7 +14,7 @@
         html, body {
             width: 100%;
             height: 100%;
-            background: #000;
+            background: #0a0a0a;
             overflow: hidden;
             cursor: none;
         }
@@ -23,23 +23,160 @@
             display: block;
         }
 
+        .toolbar {
+            position: fixed;
+            top: 24px;
+            left: 24px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 18px;
+            background: rgba(20, 20, 20, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            user-select: none;
+        }
+
+        .toolbar h2 {
+            color: #fff;
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            opacity: 0.6;
+            font-weight: 600;
+        }
+
+        .colors {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .color-swatch {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+        }
+
+        .color-swatch.active {
+            border-color: #fff;
+            transform: scale(1.25);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
+        }
+
+        .thickness {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .thickness label {
+            color: #aaa;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+        }
+
+        .thickness input {
+            width: 100px;
+            accent-color: #ff0000;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 9px 12px;
+            border: none;
+            border-radius: 10px;
+            background: #2a2a2a;
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .btn:hover {
+            background: #3a3a3a;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn.clear {
+            background: #6b1a1a;
+            border-color: rgba(180, 40, 40, 0.4);
+        }
+
+        .btn.clear:hover {
+            background: #8b2a2a;
+        }
+
         .pencil {
             position: fixed;
             top: 0;
             left: 0;
-            width: 16px;
-            height: 48px;
-            background: linear-gradient(to bottom, #ffcc00, #ffaa00);
-            border: 2px solid #333;
-            border-radius: 3px 3px 0 0;
-            transform: translate(-50%, -50%) rotate(45deg);
+            width: 22px;
+            height: 72px;
+            transform: translate(-50%, -50%) rotate(32deg);
             pointer-events: none;
             z-index: 9999;
-            box-shadow: 0 0 12px rgba(255, 0, 0, 0.4);
         }
 
-        .pencil::before {
-            content: "";
+        .pencil-eraser {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #e57373, #ef9a9a);
+            border-radius: 50%;
+            border: 2px solid #4e342e;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .pencil-band {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 18px;
+            height: 5px;
+            background: #3e2723;
+            border-radius: 2px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .pencil-body {
+            position: absolute;
+            top: 18px;
+            left: 0;
+            width: 100%;
+            height: 42px;
+            background: linear-gradient(135deg, #ffd54f, #ffb300);
+            border: 2px solid #4e342e;
+            border-radius: 3px;
+            box-shadow: inset 0 -1px 3px rgba(0,0,0,0.3), 0 3px 10px rgba(0,0,0,0.4);
+        }
+
+        .pencil-tip {
             position: absolute;
             bottom: 0;
             left: 50%;
@@ -47,32 +184,97 @@
             width: 10px;
             height: 10px;
             background: #5d4037;
-            border-radius: 0 0 3px 3px;
+            border-radius: 2px 2px 0 0;
+            box-shadow: inset 0 -1px 2px rgba(0,0,0,0.4);
+        }
+
+        .pencil-lead {
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 6px;
+            background: currentColor;
+            border-radius: 1px 1px 0 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
         }
     </style>
 </head>
 <body>
     <canvas id="canvas"></canvas>
-    <div class="pencil" id="pencil"></div>
+    <div class="pencil" id="pencil">
+        <div class="pencil-eraser"></div>
+        <div class="pencil-band"></div>
+        <div class="pencil-body"></div>
+        <div class="pencil-tip"></div>
+        <div class="pencil-lead" id="pencil-lead"></div>
+    </div>
+    <div class="toolbar" id="toolbar">
+        <h2>Sketch</h2>
+        <div class="colors" id="colors"></div>
+        <div class="thickness">
+            <label>Spessore</label>
+            <input type="range" id="thickness" min="2" max="30" value="6">
+        </div>
+        <div class="actions">
+            <button class="btn clear" id="clear">Cancella tela</button>
+        </div>
+    </div>
 
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const pencil = document.getElementById('pencil');
+        const pencilLead = document.getElementById('pencil-lead');
+        const colorsContainer = document.getElementById('colors');
+        const thicknessInput = document.getElementById('thickness');
+        const clearBtn = document.getElementById('clear');
+
+        const palette = [
+            '#ff0000', '#ff3333', '#00ff00', '#33ff33',
+            '#0000ff', '#3333ff', '#ffff00', '#ff00ff',
+            '#00ffff', '#ffaa00', '#aa00ff', '#00aaaa',
+            '#ffffff', '#aaaaaa', '#555555', '#000000'
+        ];
+
+        let currentColor = palette[0];
+        let drawing = false;
 
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            ctx.strokeStyle = '#ff0000';
-            ctx.lineWidth = 5;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
+            ctx.lineWidth = parseInt(thicknessInput.value);
+            ctx.strokeStyle = currentColor;
+            pencilLead.style.background = currentColor;
         }
 
         window.addEventListener('resize', resize);
         resize();
 
-        let drawing = false;
+        palette.forEach((c, i) => {
+            const sw = document.createElement('div');
+            sw.className = 'color-swatch' + (i === 0 ? ' active' : '');
+            sw.style.background = c;
+            sw.addEventListener('click', () => {
+                currentColor = c;
+                ctx.strokeStyle = c;
+                pencilLead.style.background = c;
+                document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+                sw.classList.add('active');
+            });
+            colorsContainer.appendChild(sw);
+        });
+
+        thicknessInput.addEventListener('input', () => {
+            ctx.lineWidth = parseInt(thicknessInput.value);
+        });
+
+        clearBtn.addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
 
         canvas.addEventListener('mousedown', (e) => {
             drawing = true;
@@ -83,20 +285,14 @@
         canvas.addEventListener('mousemove', (e) => {
             pencil.style.left = e.clientX + 'px';
             pencil.style.top = e.clientY + 'px';
-
             if (drawing) {
                 ctx.lineTo(e.clientX, e.clientY);
                 ctx.stroke();
             }
         });
 
-        window.addEventListener('mouseup', () => {
-            drawing = false;
-        });
-
-        canvas.addEventListener('mouseleave', () => {
-            drawing = false;
-        });
+        window.addEventListener('mouseup', () => { drawing = false; });
+        canvas.addEventListener('mouseleave', () => { drawing = false; });
     </script>
 </body>
 </html>
