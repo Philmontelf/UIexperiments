@@ -3,9 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UI Experiments</title>
+    <title>UI Experiments – Switch Button</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .switch-container span {
+            font-size: 1rem;
+            color: #333;
+            user-select: none;
+        }
+
+        /* L'interruttore vero e proprio */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        /* Stato attivo (ON) */
+        input:checked + .slider {
+            background-color: #4caf50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Stato inattivo (OFF) */
+        input:not(:checked) + .slider {
+            background-color: #ccc;
+        }
+
+        input:not(:checked) + .slider:before {
+            transform: translateX(0);
+        }
+
+        /* Effetto hover */
+        .switch input:focus + .slider {
+            box-shadow: 0 0 1px #4caf50;
+        }
+    </style>
 </head>
 <body>
+    <div class="switch-container">
+        <span id="status">Off</span>
+        <label class="switch">
+            <input type="checkbox" id="toggle">
+            <span class="slider"></span>
+        </label>
+    </div>
 
+    <script>
+        const toggle = document.getElementById('toggle');
+        const status = document.getElementById('status');
+
+        function updateStatus() {
+            status.textContent = toggle.checked ? 'On' : 'Off';
+        }
+
+        toggle.addEventListener('change', updateStatus);
+
+        // Stato iniziale
+        updateStatus();
+    </script>
 </body>
 </html>
