@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sketch – Disegno stilizzato</title>
+    <title>Sketch – Matita triangolo</title>
     <style>
         * {
             margin: 0;
@@ -130,91 +130,24 @@
 
         .pencil {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 22px;
-            height: 72px;
-            transform-origin: bottom center;
-            transform: rotate(32deg);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 24px solid #ffb300;
             pointer-events: none;
             z-index: 9999;
+            filter: drop-shadow(0 0 6px rgba(255, 0, 0, 0.4));
         }
 
         .pencil.hidden {
             display: none;
         }
-
-        .pencil-eraser {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 16px;
-            height: 16px;
-            background: linear-gradient(135deg, #e57373, #ef9a9a);
-            border-radius: 50%;
-            border: 2px solid #4e342e;
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .pencil-band {
-            position: absolute;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 18px;
-            height: 5px;
-            background: #3e2723;
-            border-radius: 2px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        }
-
-        .pencil-body {
-            position: absolute;
-            top: 18px;
-            left: 0;
-            width: 100%;
-            height: 42px;
-            background: linear-gradient(135deg, #ffd54f, #ffb300);
-            border: 2px solid #4e342e;
-            border-radius: 3px;
-            box-shadow: inset 0 -1px 3px rgba(0,0,0,0.3), 0 3px 10px rgba(0,0,0,0.4);
-        }
-
-        .pencil-tip {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 10px;
-            height: 10px;
-            background: #5d4037;
-            border-radius: 2px 2px 0 0;
-            box-shadow: inset 0 -1px 2px rgba(0,0,0,0.4);
-        }
-
-        .pencil-lead {
-            position: absolute;
-            bottom: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 6px;
-            background: currentColor;
-            border-radius: 1px 1px 0 0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-        }
     </style>
 </head>
 <body>
     <canvas id="canvas"></canvas>
-    <div class="pencil" id="pencil">
-        <div class="pencil-eraser"></div>
-        <div class="pencil-band"></div>
-        <div class="pencil-body"></div>
-        <div class="pencil-tip"></div>
-        <div class="pencil-lead" id="pencil-lead"></div>
-    </div>
+    <div class="pencil" id="pencil"></div>
     <div class="toolbar" id="toolbar">
         <h2>Sketch</h2>
         <div class="colors" id="colors"></div>
@@ -231,10 +164,10 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const pencil = document.getElementById('pencil');
-        const pencilLead = document.getElementById('pencil-lead');
         const colorsContainer = document.getElementById('colors');
         const thicknessInput = document.getElementById('thickness');
         const clearBtn = document.getElementById('clear');
+        const toolbar = document.getElementById('toolbar');
 
         const palette = [
             '#ff0000', '#ff3333', '#00ff00', '#33ff33',
@@ -253,7 +186,6 @@
             ctx.lineJoin = 'round';
             ctx.lineWidth = parseInt(thicknessInput.value);
             ctx.strokeStyle = currentColor;
-            pencilLead.style.background = currentColor;
         }
 
         window.addEventListener('resize', resize);
@@ -266,10 +198,8 @@
             sw.addEventListener('click', () => {
                 currentColor = c;
                 ctx.strokeStyle = c;
-                pencilLead.style.background = c;
                 document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
                 sw.classList.add('active');
-                pencil.classList.add('hidden');
             });
             colorsContainer.appendChild(sw);
         });
@@ -282,16 +212,20 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         });
 
+        // La penna sparisce solo dentro la toolbar (riquadro colori)
+        toolbar.addEventListener('mouseenter', () => pencil.classList.add('hidden'));
+        toolbar.addEventListener('mouseleave', () => pencil.classList.remove('hidden'));
+
         canvas.addEventListener('mousedown', (e) => {
             drawing = true;
-            pencil.classList.remove('hidden');
             ctx.beginPath();
             ctx.moveTo(e.clientX, e.clientY);
         });
 
         canvas.addEventListener('mousemove', (e) => {
-            pencil.style.left = (e.clientX - 11) + 'px';
-            pencil.style.top = e.clientY + 'px';
+            // Il vertice inferiore del triangolo coincide col puntatore
+            pencil.style.left = (e.clientX - 12) + 'px';
+            pencil.style.top = (e.clientY - 24) + 'px';
             if (drawing) {
                 ctx.lineTo(e.clientX, e.clientY);
                 ctx.stroke();
