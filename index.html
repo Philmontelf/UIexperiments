@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UI Experiments – Switch & Theme</title>
+    <title>UI Experiments – Interruttore a Levetta</title>
     <style>
         * {
             box-sizing: border-box;
@@ -14,19 +14,23 @@
         :root {
             --bg-color: #f5f7fa;
             --text-color: #333;
-            --card-bg: #ffffff;
-            --slider-off: #ccc;
-            --slider-on: #4caf50;
-            --toggle-shadow: #4caf50;
+            --plate-color: #e2e2e2;
+            --plate-shadow: #b8b8b8;
+            --lever-off: #c9c9c9;
+            --lever-on: #4caf50;
+            --lever-shadow: #9e9e9e;
+            --label-color: #555;
         }
 
         [data-theme="dark"] {
             --bg-color: #1a1a1a;
             --text-color: #e0e0e0;
-            --card-bg: #2a2a2a;
-            --slider-off: #555;
-            --slider-on: #66bb6a;
-            --toggle-shadow: #66bb6a;
+            --plate-color: #3a3a3a;
+            --plate-shadow: #222;
+            --lever-off: #666;
+            --lever-on: #66bb6a;
+            --lever-shadow: #000;
+            --label-color: #aaa;
         }
 
         body {
@@ -35,102 +39,119 @@
             color: var(--text-color);
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            gap: 24px;
+            justify-content: center;
+            gap: 32px;
             min-height: 100vh;
             transition: background 0.3s, color 0.3s;
         }
 
-        .controls {
+        h1 {
+            font-size: 1.25rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .panel {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 16px;
+            gap: 20px;
         }
 
-        .switch-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .switch-container span {
-            font-size: 1rem;
-            color: var(--text-color);
+        .wall-switch {
+            position: relative;
+            width: 120px;
+            height: 200px;
+            background: var(--plate-color);
+            border: 2px solid var(--plate-shadow);
+            border-radius: 12px;
+            box-shadow:
+                0 8px 0 var(--plate-shadow),
+                0 12px 16px rgba(0,0,0,0.15);
+            transition: box-shadow 0.2s, border-color 0.3s;
             user-select: none;
         }
 
-        /* L'interruttore vero e proprio */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 48px;
-            height: 26px;
+        .wall-switch:active {
+            box-shadow:
+                0 4px 0 var(--plate-shadow),
+                0 6px 10px rgba(0,0,0,0.15);
+            transform: translateY(4px);
         }
 
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
+        .label-on,
+        .label-off {
             position: absolute;
+            top: 18px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--label-color);
+            letter-spacing: 0.5px;
+            transition: color 0.3s;
+        }
+
+        .label-off { left: 34px; }
+        .label-on  { right: 34px; }
+
+        .lever {
+            position: absolute;
+            top: 55px;
+            left: 50%;
+            width: 44px;
+            height: 110px;
+            background: var(--lever-off);
+            border: 2px solid var(--lever-shadow);
+            border-radius: 6px;
+            transform: translateX(-50%) rotate(-20deg);
+            transform-origin: 50% 165px;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                        background 0.3s,
+                        border-color 0.3s;
+            box-shadow: 0 4px 0 var(--lever-shadow);
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--slider-off);
-            transition: 0.3s;
-            border-radius: 26px;
         }
 
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 20px;
-            width: 20px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: 0.3s;
-            border-radius: 50%;
+        .lever:active {
+            transform: translateX(-50%) rotate(-20deg) scale(0.96);
+            box-shadow: 0 2px 0 var(--lever-shadow);
         }
 
-        /* Stato attivo (ON) */
-        input:checked + .slider {
-            background-color: var(--slider-on);
+        input[type="checkbox"] {
+            display: none;
+        }
+        input:checked + .wall-switch .lever {
+            transform: translateX(-50%) rotate(20deg);
+            background: var(--lever-on);
+            border-color: #2e7d32;
+            box-shadow: 0 4px 0 #1b5e20;
         }
 
-        input:checked + .slider:before {
-            transform: translateX(22px);
+        input:checked + .wall-switch .label-on {
+            color: var(--lever-on);
         }
 
-        /* Stato inattivo (OFF) */
-        input:not(:checked) + .slider {
-            background-color: var(--slider-off);
+        input:checked + .wall-switch .label-off {
+            color: var(--label-color);
         }
 
-        input:not(:checked) + .slider:before {
-            transform: translateX(0);
+        input:not(:checked) + .wall-switch .label-off {
+            color: var(--lever-off);
         }
 
-        /* Effetto focus */
-        .switch input:focus + .slider {
-            box-shadow: 0 0 0 2px var(--toggle-shadow);
+        input:not(:checked) + .wall-switch .label-on {
+            color: var(--label-color);
         }
 
-        /* Tema switch */
         .theme-btn {
-            background: var(--card-bg);
+            background: var(--plate-color);
             color: var(--text-color);
-            border: 1px solid var(--slider-off);
-            padding: 8px 16px;
-            border-radius: 20px;
+            border: 2px solid var(--plate-shadow);
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 0.9rem;
+            font-weight: 500;
             transition: all 0.3s;
         }
 
@@ -140,51 +161,31 @@
 
         .theme-btn:focus {
             outline: none;
-            box-shadow: 0 0 0 2px var(--toggle-shadow);
-        }
-
-        .theme-icon {
-            margin-right: 6px;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
         }
     </style>
 </head>
 <body>
-    <div class="controls">
-        <div class="switch-container">
-            <span id="status">Off</span>
-            <label class="switch">
-                <input type="checkbox" id="toggle">
-                <span class="slider"></span>
-            </label>
+    <h1>UI Experiments</h1>
+
+    <div class="panel">
+        <div class="wall-switch">
+            <input type="checkbox" id="switch" aria-label="Interruttore luce">
+            <span class="label-off">OFF</span>
+            <span class="label-on">ON</span>
+            <label class="lever" for="switch" aria-hidden="true"></label>
         </div>
 
         <button class="theme-btn" id="theme-toggle" aria-label="Cambia tema">
-            <span class="theme-icon" id="theme-icon">🌙</span>
-            <span id="theme-label">Tema scuro</span>
+            <span id="theme-text">Tema scuro</span>
         </button>
     </div>
 
     <script>
-        // --- Switch ON/OFF ---
-        const toggle = document.getElementById('toggle');
-        const status = document.getElementById('status');
-
-        function updateStatus() {
-            status.textContent = toggle.checked ? 'On' : 'Off';
-        }
-
-        toggle.addEventListener('change', updateStatus);
-
-        // Stato iniziale switch
-        updateStatus();
-
-        // --- Tema chiaro/scuro ---
         const themeBtn = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-        const themeLabel = document.getElementById('theme-label');
+        const themeText = document.getElementById('theme-text');
         const html = document.documentElement;
 
-        // Legge il tema salvato o usa il sistema
         const savedTheme = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const currentTheme = savedTheme || (prefersDark ? 'dark' : 'light');
@@ -192,13 +193,11 @@
         function setTheme(theme) {
             if (theme === 'dark') {
                 html.setAttribute('data-theme', 'dark');
-                themeIcon.textContent = '☀️';
-                themeLabel.textContent = 'Tema chiaro';
+                themeText.textContent = 'Tema chiaro';
                 localStorage.setItem('theme', 'dark');
             } else {
                 html.removeAttribute('data-theme');
-                themeIcon.textContent = '🌙';
-                themeLabel.textContent = 'Tema scuro';
+                themeText.textContent = 'Tema scuro';
                 localStorage.setItem('theme', 'light');
             }
         }
