@@ -224,9 +224,10 @@
         });
 
         canvas.addEventListener('mousemove', (e) => {
-            // Il vertice inferiore del triangolo coincide col puntatore
-            pencil.style.left = e.clientX + 'px';
-            pencil.style.top = (e.clientY - 24) + 'px';
+            // Il vertice più a sinistra del triangolo ruotato coincide col puntatore
+            pencil.style.left = (e.clientX + 10) + 'px';
+            pencil.style.top = (e.clientY - 23) + 'px';
+            pencil.style.top = (e.clientY - 33) + 'px';
             if (drawing) {
                 ctx.lineTo(e.clientX, e.clientY);
                 ctx.stroke();
