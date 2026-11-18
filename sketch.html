@@ -135,6 +135,8 @@
             border-left: 12px solid transparent;
             border-right: 12px solid transparent;
             border-bottom: 24px solid #ffffff;
+            transform-origin: bottom center;
+            transform: rotate(-115deg);
             pointer-events: none;
             z-index: 9999;
         }
@@ -223,7 +225,7 @@
 
         canvas.addEventListener('mousemove', (e) => {
             // Il vertice inferiore del triangolo coincide col puntatore
-            pencil.style.left = (e.clientX - 12) + 'px';
+            pencil.style.left = e.clientX + 'px';
             pencil.style.top = (e.clientY - 24) + 'px';
             if (drawing) {
                 ctx.lineTo(e.clientX, e.clientY);
